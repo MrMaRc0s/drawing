@@ -2,18 +2,22 @@ mod geometrical_shapes;
 
 use geometrical_shapes as gs;
 use gs::{Displayable, Drawable};
-use raster::{Color, Image}
+use raster::{Color, Image};
 
 fn main() {
     let mut image = Image::blank(1000, 1000);
 
+    //Random Line
     gs::Line::random(image.width, image.height).draw(&mut image);
 
+    // Random Point
     gs::Point::random(image.width, image.height).draw(&mut image);
 
+    // Rectangle with reverse-order points
     let rectangle = gs::Rectangle::new(&gs::Point::new(150, 300), &gs::Point::new(50, 60));
     rectangle.draw(&mut image);
 
+    // Triangle
     let triangle = gs::Triangle::new(
         &gs::Point::new(500, 500),
         &gs::Point::new(250, 700),
@@ -21,11 +25,14 @@ fn main() {
     );
     triangle.draw(&mut image);
 
-    for _ in 1..50 {
+    // FROM CLASSMATE: The circle testing loop
+    // (Note: This assumes Circle::random is implemented in the shapes file)
+    for _ in 0..50 {
         gs::Circle::random(image.width, image.height).draw(&mut image);
     }
 
-    raster::save(&image, "image.png").unwrap();
+    raster::save(&image, "image.png"); 
+    println!("Image generated: image.png");
 }
 
 impl Displayable for Image {
