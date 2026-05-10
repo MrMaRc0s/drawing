@@ -363,6 +363,7 @@ impl Drawable for Cube {
 mod tests {
     use super::*;
 
+    // Verify that random functions never produce points outside the specified image dimensions.
     #[test]
     fn random_point_stays_inside_image_dimensions() {
         let width = 69;
@@ -402,5 +403,17 @@ mod tests {
             assert!(circle.center.x >= 0 && circle.center.x < width);
             assert!(circle.center.y >= 0 && circle.center.y < height);
         }
+    }
+
+    //Verify that shapes are correctly initialized even if the points are provided in reverse order.
+    #[test]
+    fn rectangle_normalizes_reverse_order_points() {
+        let bottom_right_first = Rectangle::new(&Point::new(150, 300), &Point::new(50, 60));
+        let bottom_left_first = Rectangle::new(&Point::new(50, 300), &Point::new(150, 60));
+
+        assert_eq!(bottom_right_first.top_left, Point::new(50, 300));
+        assert_eq!(bottom_right_first.bottom_right, Point::new(150, 60));
+        assert_eq!(bottom_left_first.top_left, Point::new(50, 300));
+        assert_eq!(bottom_left_first.bottom_right, Point::new(150, 60));
     }
 }
