@@ -358,3 +358,21 @@ impl Drawable for Cube {
         Color::rgb(255, 165, 0)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn random_point_stays_inside_image_dimensions() {
+        let width = 69;
+        let height = 69;
+
+        for _ in 0..1_000 {
+            let point = Point::random(width, height);
+
+            assert!(point.x >= 0 && point.x < width);
+            assert!(point.y >= 0 && point.y < height);
+        }
+    }
+}
