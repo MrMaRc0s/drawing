@@ -82,7 +82,7 @@ Building this engine has been a journey through the fundamentals of computer gra
 | 🧑‍💻 Name | 💬 Discord Profile |
 | --- | --- |
 | **Georgia Marouli** | [@gmarouli](https://discordapp.com/users/1277216244910522371) |
-| **Andriana Stas** | [@astas](https://www.google.com/search?q=https://discordapp.com/users/780150798927134740) |
+| **Andriana Stas** | [@astas](https://discordapp.com/users/780150798927134740) |
 | **Stamatios Manousis** | [@smanousi](https://discordapp.com/users/350760622180270090) |
-| **Christos Markos** | [@cmarkos](https://www.google.com/search?q=https://discordapp.com/users/284929126278627328) |
+| **Christos Markos** | [@cmarkos](https://discordapp.com/users/284929126278627328) |
 
