@@ -1,6 +1,41 @@
 use raster::{Color, Image};
 use rand::Rng;
 
+fn stroke_line(image: &mut Image, start: &Point, end: &Point, color: &Color) {
+    let color = color.clone();
+    let (mut x1, mut y1) = (start.x, start.y);
+    let (mut x2, mut y2) = (end.x, end.y);
+
+    let steep = (y2 - y1).abs() > (x2 - x1).abs();
+    if steep {
+        (x1, y1) = (y1, x1);
+        (x2, y2) = (y2, x2);
+    }
+
+    if x1 > x2 {
+        (x1, y1, x2, y2) = (x2, y2, x1, y1);
+    }
+
+    let dx = x2 - x1;
+    let dy = (y2 - y1).abs();
+    let y_step = if y1 < y2 { 1 } else { -1 };
+    let mut error = 2 * dy - dx;
+    let mut y = y1;
+
+    for x in x1..=x2 {
+        if steep {
+            image.display(y, x, color.clone());
+        } else {
+            image.display(x, y, color.clone());
+        }
+        if error > 0 {
+            y += y_step;
+            error -= 2 * dx;
+        }
+        error += 2 * dy;
+    }
+}
+
 // --- Traits ---
 
 /// Interface for objects that can be rendered to a canvas.
@@ -38,12 +73,12 @@ impl Point {
 
 impl Drawable for Point {
     fn draw(&self, image: &mut Image) {
-        image.display(self.x, self.y, Color::black());
+        let c = self.color();
+        image.display(self.x, self.y, c);
     }
-    
+
     fn color(&self) -> Color {
-       let mut rng = rand::thread_rng();
-       Color::rgb(rng.gen_range(0..=255), rng.gen_range(0..=255), rng.gen_range(0..=255))
+        Color::rgb(255, 255, 0)
     }
 }
 
@@ -69,45 +104,13 @@ impl Line {
 }
 
 impl Drawable for Line {
-    /// Bresenham's Line Algorithm implementation.
     fn draw(&self, image: &mut Image) {
         let color = self.color();
-        let (mut x1, mut y1) = (self.start.x, self.start.y);
-        let (mut x2, mut y2) = (self.end.x, self.end.y);
-
-        let steep = (y2 - y1).abs() > (x2 - x1).abs();
-        if steep {
-            (x1, y1) = (y1, x1);
-            (x2, y2) = (y2, x2);
-        }
-
-        if x1 > x2 {
-            (x1, y1, x2, y2) = (x2, y2, x1, y1);
-        }
-
-        let dx = x2 - x1;
-        let dy = (y2 - y1).abs();
-        let y_step = if y1 < y2 { 1 } else { -1 };
-        let mut error = 2 * dy - dx;
-        let mut y = y1;
-
-        for x in x1..=x2 {
-            if steep {
-                image.display(y, x, color.clone());
-            } else {
-                image.display(x, y, color.clone());
-            }
-            if error > 0 {
-                y += y_step;
-                error -= 2 * dx;
-            }
-            error += 2 * dy;
-        }
+        stroke_line(image, &self.start, &self.end, &color);
     }
 
     fn color(&self) -> Color {
-        let mut rng = rand::thread_rng();
-        Color::rgb(rng.gen_range(0..=255), rng.gen_range(0..=255), rng.gen_range(0..=255))
+        Color::rgb(255, 255, 255)
     }
 }
 
@@ -136,18 +139,18 @@ impl Rectangle {
 
 impl Drawable for Rectangle {
     fn draw(&self, image: &mut Image) {
+        let c = self.color();
         let top_right = Point::new(self.bottom_right.x, self.top_left.y);
         let bottom_left = Point::new(self.top_left.x, self.bottom_right.y);
 
-        Line::new(&self.top_left, &top_right).draw(image);
-        Line::new(&top_right, &self.bottom_right).draw(image);
-        Line::new(&self.bottom_right, &bottom_left).draw(image);
-        Line::new(&bottom_left, &self.top_left).draw(image);
+        stroke_line(image, &self.top_left, &top_right, &c);
+        stroke_line(image, &top_right, &self.bottom_right, &c);
+        stroke_line(image, &self.bottom_right, &bottom_left, &c);
+        stroke_line(image, &bottom_left, &self.top_left, &c);
     }
 
     fn color(&self) -> Color {
-        let mut rng = rand::thread_rng();
-        Color::rgb(rng.gen_range(0..=255), rng.gen_range(0..=255), rng.gen_range(0..=255))
+        Color::rgb(255, 255, 255)
     }
 }
 
@@ -168,14 +171,14 @@ impl Triangle {
 
 impl Drawable for Triangle {
     fn draw(&self, image: &mut Image) {
-        Line::new(&self.a, &self.b).draw(image);
-        Line::new(&self.b, &self.c).draw(image);
-        Line::new(&self.c, &self.a).draw(image);
+        let c = self.color();
+        stroke_line(image, &self.a, &self.b, &c);
+        stroke_line(image, &self.b, &self.c, &c);
+        stroke_line(image, &self.c, &self.a, &c);
     }
 
     fn color(&self) -> Color {
-        let mut rng = rand::thread_rng();
-        Color::rgb(rng.gen_range(0..=255), rng.gen_range(0..=255), rng.gen_range(0..=255))
+        Color::rgb(255, 255, 255)
     }
 }
 
