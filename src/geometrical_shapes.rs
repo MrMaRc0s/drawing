@@ -3,6 +3,10 @@ use std::f64::consts::PI;
 use raster::{Color, Image};
 use rand::Rng;
 
+#[cfg(test)]
+#[path = "tests/mod.rs"]
+mod tests;
+
 fn stroke_line(image: &mut Image, start: &Point, end: &Point, color: &Color) {
     let color = color.clone();
     let (mut x1, mut y1) = (start.x, start.y);
@@ -358,3 +362,5 @@ impl Drawable for Cube {
         Color::rgb(255, 165, 0)
     }
 }
+
+
