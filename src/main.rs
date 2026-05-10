@@ -25,9 +25,9 @@ fn main() {
     );
     triangle.draw(&mut image);
 
-    // FROM CLASSMATE: The circle testing loop
+    // 0..50 cirles give us 50 circles while 1..50 give us 49 circles. The exercise asks for 49 circles. - IMPORTANT
     // (Note: This assumes Circle::random is implemented in the shapes file)
-    for _ in 0..50 {
+    for _ in 1..50 {
         gs::Circle::random(image.width, image.height).draw(&mut image);
     }
 
