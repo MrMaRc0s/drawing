@@ -390,4 +390,17 @@ mod tests {
             assert!(line.end.y >= 0 && line.end.y < height);
         }
     }
+
+    #[test]
+    fn random_circle_center_stays_inside_image_dimensions() {
+        let width = 69;
+        let height = 69;
+
+        for _ in 0..1_000 {
+            let circle = Circle::random(width, height);
+
+            assert!(circle.center.x >= 0 && circle.center.x < width);
+            assert!(circle.center.y >= 0 && circle.center.y < height);
+        }
+    }
 }
