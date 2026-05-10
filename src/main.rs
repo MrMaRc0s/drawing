@@ -31,6 +31,10 @@ fn main() {
         gs::Circle::random(image.width, image.height).draw(&mut image);
     }
 
+    // Bonus: must be drawn (and after circles) or they will not appear in image.png.
+    gs::Pentagon::new(&gs::Point::new(820, 180), 90).draw(&mut image);
+    gs::Cube::new(&gs::Point::new(220, 820), 120).draw(&mut image);
+
     raster::save(&image, "image.png"); 
     println!("Image generated: image.png");
 }

@@ -1,3 +1,5 @@
+use std::f64::consts::PI;
+
 use raster::{Color, Image};
 use rand::Rng;
 
@@ -91,6 +93,7 @@ pub struct Line {
 }
 
 impl Line {
+    #[allow(dead_code)]
     pub fn new(start: &Point, end: &Point) -> Self {
         Self { start: start.clone(), end: end.clone() }
     }
@@ -191,6 +194,7 @@ pub struct Circle {
 }
 
 impl Circle {
+    #[allow(dead_code)]
     pub fn new(center: &Point, radius: i32) -> Self {
         Self { center: center.clone(), radius }
     }
@@ -235,5 +239,122 @@ impl Drawable for Circle {
     fn color(&self) -> Color {
         let mut rng = rand::thread_rng();
         Color::rgb(rng.gen_range(0..=255), rng.gen_range(0..=255), rng.gen_range(0..=255))
+    }
+}
+
+// --- Pentagon (bonus) ---
+
+/// Regular pentagon in screen space (`center`, circumscribed `radius`).
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct Pentagon {
+    center: Point,
+    radius: i32,
+}
+
+impl Pentagon {
+    pub fn new(center: &Point, radius: i32) -> Self {
+        Self {
+            center: center.clone(),
+            radius: radius.max(0),
+        }
+    }
+
+    fn vertices(&self) -> [Point; 5] {
+        let mut pts = core::array::from_fn(|_| Point::new(0, 0));
+        let cx = self.center.x as f64;
+        let cy = self.center.y as f64;
+        let r = self.radius as f64;
+
+        for i in 0..5 {
+            let theta = -PI / 2.0 + (2.0 * PI * i as f64 / 5.0);
+            let x = cx + r * theta.cos();
+            let y = cy + r * theta.sin();
+            pts[i] = Point::new(x.round() as i32, y.round() as i32);
+        }
+        pts
+    }
+}
+
+impl Drawable for Pentagon {
+    fn draw(&self, image: &mut Image) {
+        let c = self.color();
+        let v = self.vertices();
+        for i in 0..5 {
+            stroke_line(image, &v[i], &v[(i + 1) % 5], &c);
+        }
+    }
+
+    fn color(&self) -> Color {
+        Color::rgb(0, 255, 255)
+    }
+}
+
+// --- Cube (bonus) ---
+
+/// Axis-aligned cube in 3D, drawn as a wireframe with a simple isometric projection.
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct Cube {
+    center: Point,
+    half_edge: i32,
+}
+
+impl Cube {
+    pub fn new(center: &Point, edge: i32) -> Self {
+        let edge = edge.max(1);
+        Self {
+            center: center.clone(),
+            half_edge: edge / 2,
+        }
+    }
+
+    fn corner_model(i: u8, h: i32) -> (i32, i32, i32) {
+        let p = |b: u8| if b == 0 { -h } else { h };
+        let xb = i & 1;
+        let yb = (i >> 1) & 1;
+        let zb = (i >> 2) & 1;
+        (p(xb), p(yb), p(zb))
+    }
+
+    fn project(&self, mx: i32, my: i32, mz: i32) -> Point {
+        let xf = mx as f64;
+        let yf = my as f64;
+        let zf = mz as f64;
+        let sx = self.center.x as f64 + xf - zf;
+        let sy = self.center.y as f64 - yf - (xf + zf) * 0.5;
+        Point::new(sx.round() as i32, sy.round() as i32)
+    }
+
+    fn screen_corner(&self, index: u8) -> Point {
+        let (x, y, z) = Self::corner_model(index, self.half_edge);
+        self.project(x, y, z)
+    }
+}
+
+impl Drawable for Cube {
+    fn draw(&self, image: &mut Image) {
+        let c = self.color();
+        const EDGES: [(u8, u8); 12] = [
+            (0, 1),
+            (1, 3),
+            (3, 2),
+            (2, 0),
+            (4, 5),
+            (5, 7),
+            (7, 6),
+            (6, 4),
+            (0, 4),
+            (1, 5),
+            (3, 7),
+            (2, 6),
+        ];
+        for (a, b) in EDGES {
+            let pa = self.screen_corner(a);
+            let pb = self.screen_corner(b);
+            stroke_line(image, &pa, &pb, &c);
+        }
+    }
+
+    fn color(&self) -> Color {
+        Color::rgb(255, 165, 0)
     }
 }
