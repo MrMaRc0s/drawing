@@ -3,6 +3,10 @@ use std::f64::consts::PI;
 use raster::{Color, Image};
 use rand::Rng;
 
+#[cfg(test)]
+#[path = "tests/mod.rs"]
+mod tests;
+
 fn stroke_line(image: &mut Image, start: &Point, end: &Point, color: &Color) {
     let color = color.clone();
     let (mut x1, mut y1) = (start.x, start.y);
@@ -359,70 +363,4 @@ impl Drawable for Cube {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    // Verify that random functions never produce points outside the specified image dimensions.
-    #[test]
-    fn random_point_stays_inside_image_dimensions() {
-        let width = 69;
-        let height = 69;
-
-        for _ in 0..1_000 {
-            let point = Point::random(width, height);
-
-            assert!(point.x >= 0 && point.x < width);
-            assert!(point.y >= 0 && point.y < height);
-        }
-    }
-    
-    #[test]
-    fn random_line_points_stay_inside_image_dimensions() {
-        let width = 69;
-        let height = 69;
-
-        for _ in 0..1_000 {
-            let line = Line::random(width, height);
-
-            assert!(line.start.x >= 0 && line.start.x < width);
-            assert!(line.start.y >= 0 && line.start.y < height);
-            assert!(line.end.x >= 0 && line.end.x < width);
-            assert!(line.end.y >= 0 && line.end.y < height);
-        }
-    }
-
-    #[test]
-    fn random_circle_center_stays_inside_image_dimensions() {
-        let width = 69;
-        let height = 69;
-
-        for _ in 0..1_000 {
-            let circle = Circle::random(width, height);
-
-            assert!(circle.center.x >= 0 && circle.center.x < width);
-            assert!(circle.center.y >= 0 && circle.center.y < height);
-        }
-    }
-
-    //Verify that shapes are correctly initialized even if the points are provided in reverse order.
-    #[test]
-    fn rectangle_normalizes_reverse_order_points() {
-        let bottom_right_first = Rectangle::new(&Point::new(150, 300), &Point::new(50, 60));
-        let bottom_left_first = Rectangle::new(&Point::new(50, 300), &Point::new(150, 60));
-
-        assert_eq!(bottom_right_first.top_left, Point::new(50, 60));
-        assert_eq!(bottom_right_first.bottom_right, Point::new(150, 300));
-        assert_eq!(bottom_left_first.top_left, Point::new(50, 60));
-        assert_eq!(bottom_left_first.bottom_right, Point::new(150, 300));
-    }
-
-    //Test edge cases, such as a line where both points are at the same coordinate.
-    #[test]
-    fn line_with_same_start_and_end_draws_without_panicking() {
-        let point = Point::new(69, 69);
-        let line = Line::new(&point, &point);
-        let mut image = Image::blank(169, 169);
-        line.draw(&mut image);
-    }
-}
